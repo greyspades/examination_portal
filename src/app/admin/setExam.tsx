@@ -7,12 +7,14 @@ import { api } from "../../../helpers/connection";
 import { AxiosError, AxiosResponse } from "axios";
 import { AddQuestion } from "./addQuestion";
 import { Subject } from "./types";
+import { Questions } from "./questions";
 
 export const SetExam = () => {
   const [subjects, setSubjects] = useState<Subject[]>()
   const [scope, setScope] = useState<string>("JUNIOR")
   const [creating, setCreating] = useState<boolean>(false)
   const [selSubject, setSelSubject] = useState<Subject>()
+  const [view, setView] = useState<boolean>(false)
 
   const getSubjects = () => {
     const body = {
@@ -63,6 +65,11 @@ export const SetExam = () => {
     setCreating(true)
   }
 
+  const handleView = (item: Subject) => {
+    setSelSubject(item)
+    setView(true)
+  }
+
   const renderSubjectDetails = () => {
     return subjects?.map((item: Subject, idx: number) => (
       <div key={idx}>
@@ -71,6 +78,9 @@ export const SetExam = () => {
           <p>{item.name}</p>
           <p className="text-[11px] text-gray-300">{`You have set ${item.questions} out of 20 questions`}</p>
         </div>
+        <button onClick={() => handleView(item)} className="text-[#107F07] text-[14px]">
+          Questions
+        </button>
         <button onClick={() => handleCreate(item)} className="text-[#107F07] text-[14px]">
           Continue
         </button>
@@ -81,9 +91,12 @@ export const SetExam = () => {
   }
 
   return (
-    <div className="text-black p-4 mt-[20px]">
+    <div className="text-black p-4 mt-[20px] min-h-screen">
       {creating ?
        <AddQuestion subject={selSubject} close={() => setCreating(false)} />
+      :
+      view ? 
+        <Questions subject={selSubject.id} />
       :
       <div>
         <div>

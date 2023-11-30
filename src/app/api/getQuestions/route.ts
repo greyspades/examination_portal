@@ -28,10 +28,12 @@ const urls: UrlData[] = [
 export async function POST(request: NextRequest) {
   try {
     const headers = request.headers.get("authorization")
-    const formData:FormData = await request.formData()
-    const response = await Axios.post(process.env.CREATE_ARTICLE, formData, {
+    // const formData:FormData = await request.formData()
+    const body = await request.json()
+    console.log(body)
+    const response = await Axios.get(`${process.env.GET_QUESTIONS}/${body.subject}`, {
       headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           "Authorization" : headers
       }
   })

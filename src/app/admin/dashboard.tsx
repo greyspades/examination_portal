@@ -10,7 +10,7 @@ import {
 export const Dashboard = () => {
 
     return (
-        <div className="text-black p-6">
+        <div className="text-black p-6 min-h-screen">
             <div className="flex flex-row gap-6 ">
                 <Paper className="bg-[#F9F9F9] w-[230px] h-[100px] flex flex-col justify-center place-items-center gap-6">
                     <p className="text-[14px]">Total Applicants</p>

@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@draft-js-plugins/editor": "^4.1.4",
+    "@draft-js-plugins/image": "^4.1.4",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.18",
@@ -21,10 +23,11 @@
     "crypto-js": "^4.2.0",
     "draft-convert": "^2.1.13",
     "draft-js": "^0.11.7",
+    "draftjs-to-html": "^0.9.1",
     "eslint": "8.54.0",
-    "eslint-config-next": "14.0.3",
+    "eslint-config-next": "13.4.19",
     "formik": "^2.4.5",
-    "next": "14.0.3",
+    "next": "13.4.19",
     "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
