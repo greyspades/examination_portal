@@ -1,19 +1,20 @@
 "use client";
 import React, { useState, useContext } from "react";
-import { CustomInput } from "../components/customInput";
+import { CustomInput } from "../../components/customInput";
 import { FormikProps, useFormik } from "formik";
 import { Button, TextareaAutosize, TextField } from "@mui/material";
-import { ComponentContext } from "../../../context/component.context";
-import { NotifierContext } from "../../../context/notifier.context";
+import { ComponentContext } from "../../../../context/component.context";
+import { NotifierContext } from "../../../../context/notifier.context";
 import { useRouter } from "next/navigation";
+import { AxiosResponse, AxiosError } from "axios";
+import { api } from "../../../../helpers/connection";
 
 type Step = { title: string; index: number };
 
 interface OnboardingProps {
-  formik: FormikProps<any>;
   switchIndex: (idx: number) => void;
   currIndex: number;
-  setField: (field: string, value: any) => void
+  id: string
 }
 
 type Field = {
@@ -24,20 +25,62 @@ type Field = {
 }
 
 export const Attachments = ({
-  formik,
   switchIndex,
   currIndex,
-  setField
+  id
 }: OnboardingProps) => {
   const { state, dispatch } = useContext(ComponentContext);
   const { notifierState, notifierDispatch } = useContext(NotifierContext);
   const [index, setIndex] = useState<number>(1);
   const router = useRouter();
+  const formik = useFormik({
+    initialValues: {
+      referenceByPrincipal: File,
+      firstResult: File,
+      secondResult: File,
+      thirdResult: File,
+      accountCard: File,
+      passport: File,
+      membershipCard: File,
+      birthCert: File,
+      attestation: File,
+      id: id
+    },
+    onSubmit:((values) => {
+      const formData = new FormData()
+      Object.keys(values).forEach((item) => {
+        formData.append(item, values[item])
+      })
+      api.post("saveDocuments", formData, {headers: {
+        "Content-Type": "multipart/form-data"
+      }})
+      .then((res: AxiosResponse) => {
+        if(res.data.code == 200) {
+          router.push("/success")
+        }
+      })
+      .catch((err: AxiosError) => {
+        console.log(err.message)
+      })
+    })
+  })
+
+  const setField = (field: string, value: string) => {
+    if(field == "numberOfWives" || field == "numberOfChildren") {
+      value = value.replace(/[^0-9]/g, '')
+    }
+    formik.setFieldValue(field, value);
+    dispatch({
+      type: "SET_FIELD_VALUE",
+      payload: { title: field, meta: value },
+    });
+  };
+
 
   const fields: Field[] = [
     {
         title: "Reference by Principal",
-        value: "referenceByPrincip",
+        value: "referenceByPrincipal",
         type: "file"
     },
     {
@@ -87,14 +130,12 @@ export const Attachments = ({
       <div key={idx} className="grid col-span-1">
         <p className="text-[12px] text-gray-400 mb-[-10px]">{item.title}</p>
         <CustomInput
-          value={formik.values?.[item.value]}
-          onChange={(e: any) => setField(item.value, e.target.value)}
+          onChange={(e: any) => setField(item.value, e.target.files[0])}
           component={item?.options ? "select" : "text"}
           placeHolder={item.title}
           type={item.type}
           classes="bg-[#F7FCF7] w-[350px] rounded-2xl no-underline h-[40px] px-4"
           error={formik.errors?.[item.value]}
-          selValues={item?.options ? item?.options : null}
         />
       </div>
     ));

@@ -1,31 +1,30 @@
 "use client";
 import React, { useState, useContext } from "react";
-import { CustomInput } from "../components/customInput";
+import { CustomInput } from "../../components/customInput";
 import { FormikProps, useFormik } from "formik";
 import {
   Button,
+  CircularProgress,
   Divider,
   IconButton,
   TextareaAutosize,
   TextField,
 } from "@mui/material";
-import { ComponentContext } from "../../../context/component.context";
-import { NotifierContext } from "../../../context/notifier.context";
+import { ComponentContext } from "../../../../context/component.context";
+import { NotifierContext } from "../../../../context/notifier.context";
 import { useRouter } from "next/navigation";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from '@mui/icons-material/Add';
-import { EducationType } from "./types";
+import { EducationType } from "@/app/admin/types";
+import { api } from "../../../../helpers/connection";
+import { AxiosError, AxiosResponse } from "axios";
 
 type Step = { title: string; index: number };
 
 interface OnboardingProps {
-  formik: FormikProps<any>;
   switchIndex: (idx: number) => void;
   currIndex: number;
-  setField: (field: string, index: number, value: any) => void;
-  addEdu: () => void;
-  edu: EducationType[];
-  remove: (idx: number) => void;
+  id: string
 }
 
 type Field = {
@@ -36,43 +35,67 @@ type Field = {
 };
 
 export const Education = ({
-  formik,
   switchIndex,
   currIndex,
-  setField,
-  addEdu,
-  edu,
-  remove,
+  id
 }: OnboardingProps) => {
   const { state, dispatch } = useContext(ComponentContext);
   const { notifierState, notifierDispatch } = useContext(NotifierContext);
   const [fields, setFields] = useState<{ [key: string]: any }[]>();
   const [index, setIndex] = useState<number>(1);
+  const [education, setEducation] = useState<EducationType[]>(state?.user?.education ?? []);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  // const addField = () => {
-  //   let update = {
-  //     school: "",
-  //     address: "",
-  //     from: "",
-  //     to: "",
-  //     cert: ""
-  //   }
-  //   setFields([...fields, update])
-  // }
+ const submitEducation = () => {
+  setLoading(true)
+  const body = {
+    action: "education",
+    data: education
+  }
+  api.post("onboard", body)
+  .then((res: AxiosResponse) => {
+    setLoading(false)
+    if(res.data.code == 200) {
+      localStorage.setItem("onboarding", "4")
+      switchIndex(++currIndex)
+    }
+  })
+  .catch((err: AxiosError) => {
+    setLoading(false)
+    console.log(err.message)
+  })
+ }
 
-  // const updateField = (field: string, index: number, value: string) => {
-  //   let update = fields.map((item: {[key: string]: any}, idx: number) => {
-  //     if(idx == index) {
-  //       item[field] = value
-  //     }
-  //     return item
-  //   })
-  //   setFields(update)
-  // }
+  const updateEducation = (field: string, index: number, value: string) => {
+    let update = education.map((item: EducationType, idx: number) => {
+      if (idx == index) {
+        item[field] = value;
+      }
+      return item;
+    });
+    setEducation(update);
+  };
+
+  const addEducation = () => {
+    let update = {
+      id: id,
+      school: "",
+      address: "",
+      startDate: "",
+      endDate: "",
+      cert: "",
+    };
+    setEducation([...education, update]);
+  };
+
+  const removeEducation = (index: number) => {
+    let update = education.filter((item: EducationType) => education.indexOf(item) != index)
+    setEducation(update);
+  };
 
   const renderFields = () => {
-    return edu?.map((item: { [key: string]: any }, idx: number) => (
+    return education?.map((item: { [key: string]: any }, idx: number) => (
       <div key={idx} className="mt-6">
         <div className="flex flex-row">
           <div className="grid grid-cols-2 gap-8">
@@ -80,7 +103,7 @@ export const Education = ({
               <div className="grid row-span-1">
                 <CustomInput
                   value={item?.school}
-                  onChange={(e: any) => setField("school", idx, e.target.value)}
+                  onChange={(e: any) => updateEducation("school", idx, e.target.value)}
                   component={"text"}
                   placeHolder="school attended"
                   type={"text"}
@@ -92,8 +115,8 @@ export const Education = ({
 
               <div className="grid row-span-1 grid-cols-2 gap-4">
                 <CustomInput
-                  value={item?.from}
-                  onChange={(e: any) => setField("from", idx, e.target.value)}
+                  value={item?.startDate}
+                  onChange={(e: any) => updateEducation("startDate", idx, e.target.value)}
                   component={"text"}
                   placeHolder="start date"
                   type={"date"}
@@ -102,8 +125,8 @@ export const Education = ({
                   // selValues={item?.options ? item?.options : null}
                 />
                 <CustomInput
-                  value={item?.to}
-                  onChange={(e: any) => setField("to", idx, e.target.value)}
+                  value={item?.endDate}
+                  onChange={(e: any) => updateEducation("endDate", idx, e.target.value)}
                   component={"text"}
                   placeHolder="end date"
                   type={"date"}
@@ -117,7 +140,7 @@ export const Education = ({
             <div className="grid col-span-1 grid-rows-2 gap-6">
               <CustomInput
                 value={item?.address}
-                onChange={(e: any) => setField("address", idx, e.target.value)}
+                onChange={(e: any) => updateEducation("address", idx, e.target.value)}
                 component={"text"}
                 placeHolder="school address"
                 type={"text"}
@@ -128,7 +151,7 @@ export const Education = ({
 
               <CustomInput
                 value={item?.cert}
-                onChange={(e: any) => setField("cert", idx, e.target.value)}
+                onChange={(e: any) => updateEducation("cert", idx, e.target.value)}
                 component={"text"}
                 placeHolder="certificate/last class attained"
                 type={"text"}
@@ -138,7 +161,7 @@ export const Education = ({
               />
             </div>
           </div>
-          <IconButton onClick={() => remove(idx)} className="bg-[#CBE6C8] w-[35px] h-[35px] ml-[40px]">
+          <IconButton onClick={() => removeEducation(idx)} className="bg-[#CBE6C8] w-[35px] h-[35px] ml-[40px]">
             <DeleteOutlineIcon className="text-gray-400" />
           </IconButton>
         </div>
@@ -149,7 +172,7 @@ export const Education = ({
 
   const goToNextScreen = () => {
     switchIndex(++currIndex)
-    dispatch({type: "SET_EDUCATION", payload: {user: {...state?.user, education: edu}}})
+    dispatch({type: "SET_EDUCATION", payload: {user: {...state?.user, education: education}}})
   }
 
   return (
@@ -165,7 +188,7 @@ export const Education = ({
       </div> */}
       <div className="">{renderFields()}</div>
       <div className="flex justify-end mt-[30px]">
-        <IconButton onClick={addEdu} className="w-[35px] h-[35px] bg-[#CBE6C8]">
+        <IconButton onClick={addEducation} className="w-[35px] h-[35px] bg-[#CBE6C8]">
           <AddIcon className="text-gray-500" />
         </IconButton>
       </div>
@@ -177,10 +200,10 @@ export const Education = ({
           Prev
         </Button>
         <Button
-          onClick={goToNextScreen}
+          onClick={submitEducation}
           className="bg-[#267F29] text-white rounded-lg w-[150px] h-[40px]"
         >
-          Next
+            {loading ? <CircularProgress thickness={6} className="text-white w-[50px] h-[50px]" /> : <p>Next</p>}
         </Button>
       </div>
     </div>

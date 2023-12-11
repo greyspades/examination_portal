@@ -5,10 +5,11 @@ import { SideBar } from '../components/sidebar';
 import { ComponentContext } from '../../../context/component.context';
 import { NotifierContext } from '../../../context/notifier.context';
 import { SetExam } from './setExam';
-import { Applicants } from './applicants';
+import { Clients } from './clients';
 import { UploadCandidates } from './uploadCandidates';
 import { Dashboard } from './dashboard';
 import { QuestionBank } from './questionBank';
+import { Applicants } from './applicants';
 
 const Admin = () => {
     const {state, dispatch} = useContext(ComponentContext)
@@ -21,10 +22,12 @@ const Admin = () => {
           case "2.0":
             return <SetExam />
           case "3.0":
-            return <Applicants />
+            return <Clients />
           case "4.0":
             return <UploadCandidates />
           case "5.0":
+            return <Applicants />
+          case "6.0":
             return <QuestionBank />
           default :
           return 

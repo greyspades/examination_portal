@@ -30,8 +30,9 @@ export const Notifier = ({
     }
   return (
     <div>
-      <Modal open={open} className="flex justify-center">
-        <div className="h-[200px] w-[300px] bg-green-100 p-4 rounded-md mt-[40px]">
+      <Modal open={open} className=" flex justify-center">
+        <div>
+        <div className="h-auto w-[300px] bg-green-100 p-4 rounded-md mt-[40px]">
           <div className="flex flex-row gap-5 capitalize place-items-center">
             {code == 200 ? (
               <DoneAllIcon className="w-[40px] h-[40px] text-green-700" />
@@ -53,6 +54,7 @@ export const Notifier = ({
             </Button>
           )}
           </div>
+        </div>
         </div>
       </Modal>
     </div>

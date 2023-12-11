@@ -20,20 +20,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const urls: UrlData[] = [
     {
-      code: "personal",
-      url: process.env.SAVE_PERSONAL
-    },
-    {
-      code: "parents",
-      url: process.env.SAVE_PARENTS
-    },
-    {
-      code: "education",
-      url: process.env.SAVE_EDUCATION
-    },
-    {
-      code: "banking",
-      url: process.env.SAVE_BANKING
+        code: "createArticleView",
+        url: process.env.CREATE_ARTICLE_VIEW
     }
 ]
 
@@ -41,10 +29,7 @@ export async function POST(request: NextRequest) {
   try {
     const headers = request.headers.get("authorization")
     const body = await request.json()
-    const url = urls.find((item: UrlData) => item.code == body.action).url
-    delete body.action
-    console.log(body)
-    const response = await Axios.post(url, body, {
+    const response = await Axios.get(`${process.env.GET_STUDENT_INFO}/${body.field}/${body.id}`, {
       headers: {
           "Content-Type": "application/json",
           "Authorization" : headers
@@ -59,7 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response)
   } catch (error) {
     console.log(error)
-    return NextResponse.json({status: false, message: "an Error occured"})
-
   }
 }
+
+export {}

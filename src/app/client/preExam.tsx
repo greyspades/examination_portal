@@ -3,6 +3,7 @@ import { Button, Paper } from "@mui/material";
 import { Exam } from "./exam";
 import { useFormik } from "formik";
 import { CustomInput } from "../components/customInput";
+import { ExamSubjects } from "./examSubjects";
 
 export const PreExam = () => {
   const [validated, setValidated] = useState<boolean>(true);
@@ -21,7 +22,7 @@ export const PreExam = () => {
     <div className="p-8">
       {validated && startExam ? (
         <div className="text-black">
-          <Exam />
+          <ExamSubjects />
         </div>
       ) : validated && !startExam ? (
         <div>

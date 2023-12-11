@@ -1,10 +1,12 @@
 "use client";
 
 import React, { Dispatch, createContext, useReducer } from "react";
-import { EducationType } from "@/app/onboarding/types";
+import { EducationType } from "@/app/admin/types";
+import { Question } from "@/app/admin/types";
 
 type Student = {
-    surname: string,
+    id: string,
+    lastname: string,
     firstName: string,
     middleName: string,
     dob: string,
@@ -26,18 +28,22 @@ type Student = {
     fathersHomeAddress: string,
     numberOfWives: string,
     numberOfChildren: string,
-    education: EducationType[]
+    education: EducationType[],
+    mpkAccNo: string,
+    accountName: string,
+    branch: string,
+    branchManager: string,
+    area: string,
+    union: string
 }
 
 type ComponentProps = {
+  id?: string,
   index?: string;
   title?: string;
   user?: Student,
-//   slide?: Slide;
-//   article?: Article;
-//   articles?: ArticleSections;
-//   context?: Slide | Article;
   meta?: any;
+  question?: Question
 };
 
 type ActionType = {
@@ -46,14 +52,20 @@ type ActionType = {
 };
 
 const initialState: ComponentProps = {
+  id: "",
   index: "1.0",
   title: "",
   meta: null,
   user: null,
+  question: null
 };
 
 const reducer = (state: ComponentProps, action?: ActionType) => {
   switch (action.type) {
+    case "SET_ID" :
+      return { ...state, id: action.payload.id}
+    case "EDIT_QUESTION" :
+      return { ...state, title: action.payload.title, question: action.payload.question}
     case "SWITCH_INDEX" :
         return { ...state, index: action.payload.index, title: action.payload.title }
     case "SET_FIELD_VALUE" :

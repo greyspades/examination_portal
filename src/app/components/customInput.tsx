@@ -34,7 +34,8 @@ interface CustomInputProps {
   required?: true;
   endAdornment?: true;
   maxLength?: number;
-  name?: string
+  name?: string,
+  inputProps?: {[key: string]: any}
 }
 
 export const CustomInput = ({
@@ -57,7 +58,8 @@ export const CustomInput = ({
   required,
   endAdornment,
   maxLength,
-  name
+  name,
+  inputProps
 }: CustomInputProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
 
@@ -97,7 +99,7 @@ export const CustomInput = ({
           disableUnderline
           onFocus={changeFocus}
           onBlur={changeFocus}
-          inputProps={{maxLength :maxLength}}
+          inputProps={inputProps}
           //    className="h-[40px] md:w-[100%] w-[320px] bg-gray-100 rounded-md no-underline px-4 shadow-md"
           startAdornment={
             icon &&

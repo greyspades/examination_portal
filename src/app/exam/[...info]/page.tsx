@@ -1,34 +1,32 @@
+'use client'
 import React, { useState, useEffect } from "react";
 import { Button, Paper, IconButton } from "@mui/material";
-import { api } from "../../../helpers/connection";
+import Checkbox, { checkboxClasses } from "@mui/material/Checkbox";
+import { api } from "../../../../helpers/connection";
 
-export const Exam = () => {
+const Exam = ({params}) => {
   const [validated, setValidated] = useState<boolean>(false);
   const [question, setQuestion] = useState()
   const [number, setNumber] = useState<number>(1)
-
-  useEffect(() => {
-    const body = {
-        number,
-        // subject
-    }
-  },[])
+  const [answer, setAnswer] = useState<string>()
+  const subject = params.info[0]
+  const student = params.info[1]
 
   const options = [
     {
-        option: "A.",
+        option: "A",
         text: "Paris"
     },
     {
-        option: "B.",
+        option: "B",
         text: "Istanbul"
     },
     {
-        option: "C.",
+        option: "C",
         text: "Cairo"
     },
     {
-        option: "D.",
+        option: "D",
         text: "Abuja"
     }
   ]
@@ -44,15 +42,21 @@ export const Exam = () => {
                 {item.text}
             </div>
             </div>
-            <IconButton className="w-[20px] h-[20px] bg-[#CBE6C8] rounded-full">
-                
-            </IconButton>
+            <Checkbox
+              checked={item.option == answer ? true : false}
+              onChange={() => setAnswer(item.option)}
+              sx={{
+                [`&, &.${checkboxClasses.checked}`]: {
+                  color: "#CBE6C8",
+                },
+              }}
+            />
         </Paper>
     ))
   }
   
   return (
-    <div className="text-black">
+    <div className="text-black bg-white h-screen p-14">
         <div>
             <p className="font-semibold text-[24px]">Question 1 / 50</p>
         </div>
@@ -73,3 +77,5 @@ export const Exam = () => {
     </div>
   )
 };
+
+export default Exam

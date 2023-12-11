@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { CustomInput } from "../components/customInput";
 import { useFormik } from "formik";
-import { Button, Switch, TextField, IconButton } from "@mui/material";
+import { Button, Switch, TextField, IconButton, CircularProgress } from "@mui/material";
 import Checkbox, { checkboxClasses } from "@mui/material/Checkbox";
 import { Subject } from "./types";
 import dynamic from "next/dynamic";
@@ -51,13 +51,14 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
   const [hasInstructions, setHasInstructions] = useState<boolean>(false);
   const [answer, setAnswer] = useState<Answer>("A");
   const [imagePrev, setImagePrev] = useState<string>();
-  const [merge, setMerge] = useState<boolean>(false);
-  const [options, setOptions] = useState<Option[]>([
+  const [loading, setLoading] = useState<boolean>(false);
+  var optArr:Option[] = [
     { character: "A", value: "" },
     { character: "B", value: "" },
     { character: "C", value: "" },
     { character: "D", value: "" },
-  ]);
+  ]
+  const [options, setOptions] = useState<Option[]>(state?.question?.options as Option[] ?? optArr);
 
   const handleOptionsChange = (e: any, char: string) => {
     var value = e.target.value;
@@ -88,20 +89,21 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
   };
   const initialEditorState =
     state.title == "EDIT"
-      ? convertPlainTextToEditorState(null)
+      ? convertPlainTextToEditorState(state?.question?.question)
       : EditorState.createEmpty();
   const [editorState, setEditorState] = useState(initialEditorState);
   const formik = useFormik({
     initialValues: {
       question: editorState,
-      options: options,
-      answer: "",
-      instructions: "",
+      options: state?.question?.options ?? options,
+      answer: state?.question?.answer ?? "",
+      instructions: state?.question?.instructions ?? "",
       bank: "",
       subject: subject.id,
     },
     validationSchema: ValidateQuestion,
     onSubmit: (values) => {
+      setLoading(true)
       api
         .post("/createQuestion", values, {
           headers: {
@@ -109,6 +111,7 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
           },
         })
         .then((res: AxiosResponse) => {
+          setLoading(false)
           if (res.status >= 200 && res.status < 300) {
             notifierDispatch({
               type: "CREATE",
@@ -130,6 +133,7 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
           }
         })
         .catch((err: AxiosError) => {
+          setLoading(false)
           notifierDispatch({
             type: "CREATE",
             payload: {
@@ -146,7 +150,7 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
   useEffect(() => {
     // let htmlText = convertToHTML(editorState?.getCurrentContent());
     // let plainText = editorState.getCurrentContent();
-    let mainHtml = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+    let mainHtml = draftToHtml(convertToRaw(editorState?.getCurrentContent()));
 
     formik.setFieldValue("question", mainHtml);
   }, [editorState]);
@@ -340,7 +344,7 @@ export const AddQuestion = ({ subject, close }: AddQuestionProps) => {
             onClick={() => formik.handleSubmit()}
             className="text-white mt-[150px] bg-[#267F29] h-[50px] w-[100%] rounded-full"
           >
-            Submit
+            {loading ? <CircularProgress thickness={5} className="text-white w-[50px] h-[50px]" /> : <p>Submit</p>}
           </Button>
         </div>
       </div>

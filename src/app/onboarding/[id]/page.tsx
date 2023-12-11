@@ -1,34 +1,33 @@
 "use client";
-import React, { useState, useContext } from "react";
-import { CustomInput } from "../components/customInput";
+import React, { useState, useContext, useEffect } from "react";
+import { CustomInput } from "../../components/customInput";
 import { useFormik } from "formik";
 import { Button, TextareaAutosize, TextField } from "@mui/material";
 import Checkbox, { checkboxClasses } from "@mui/material/Checkbox";
 import PropTypes from "prop-types";
-import { Navbar } from "../components/navbar";
-import { ComponentContext } from "../../../context/component.context";
-import { NotifierContext } from "../../../context/notifier.context";
+import { Navbar } from "../../components/navbar";
+import { ComponentContext } from "../../../../context/component.context";
+import { NotifierContext } from "../../../../context/notifier.context";
 import { useRouter } from "next/navigation";
 import { Personal } from "./personal";
 import { Parents } from "./parents";
 import { Education } from "./education";
-import { EducationType } from "./types";
+import { EducationType } from "@/app/admin/types";
 import { Banking } from "./banking";
 import { Attachments } from "./attachments";
-import { api } from "../../../helpers/connection";
+import { api } from "../../../../helpers/connection";
 import axios, { AxiosResponse } from "axios";
 
 type Step = { title: string; index: number };
 
-const Client = (props) => {
+const Client = ({params}) => {
   const { state, dispatch } = useContext(ComponentContext);
   const { notifierState, notifierDispatch } = useContext(NotifierContext);
   const [index, setIndex] = useState<number>(1);
   const router = useRouter();
-  const [education, setEducation] = useState<EducationType[]>(state?.user?.education ?? []);
   const formik = useFormik({
     initialValues: {
-      surname: state?.user?.surname ?? "",
+      surname: state?.user?.lastname ?? "",
       firstName: state?.user?.firstName ?? "",
       middleName: state?.user?.middleName ?? "",
       dob: state?.user?.middleName ?? "",
@@ -61,54 +60,33 @@ const Client = (props) => {
       attestation: File,
     },
     onSubmit: (values) => {
-      // console.log(values)
-      var documents = {
-        firstResult: values.firstResult,
-        secondResult: values.secondResult,
-        thirdResult: values.thirdResult,
-        accountCard: values.accountCard,
-        passport: values.passport,
-        membershipCard: values.membershipCard,
-        birthCert: values.birthCert,
-        attestation: values.attestation,
-        referenceByPrincipal: values.referenceByPrincipal
-      }
-      const formData = new FormData()
-
-      Object.keys(documents).forEach((item) => {formData.append(item, documents[item])})
-      
       var body = {
-        scope: "DOCUMENTS",
-        documents: {
-          docs: formData
-        }
-      }
-      const docs = {
-        docs: formData
-      }
-      // console.log(formData)
-      console.log(documents)
-      console.log(Object.keys(documents))
 
-      axios.post("http://localhost:5049/Student/documents", formData, { headers: {
-        "Content-Type": "multipart/form-data"
-      }})
-      .then((res: AxiosResponse) => {
-        console.log(res.data)
-      })
-      // router.push("success");
+      }
+      // var documents = {
+      //   firstResult: values.firstResult,
+      //   secondResult: values.secondResult,
+      //   thirdResult: values.thirdResult,
+      //   accountCard: values.accountCard,
+      //   passport: values.passport,
+      //   membershipCard: values.membershipCard,
+      //   birthCert: values.birthCert,
+      //   attestation: values.attestation,
+      //   referenceByPrincipal: values.referenceByPrincipal
+      // }
+      // const payload = new FormData()
+
+      // Object.keys(documents).forEach((item) => {payload.append(item, documents[item])})
+   
+      // axios.post("http://localhost:5049/Student/documents", payload, { headers: {
+      //   "Content-Type": "multipart/form-data"
+      // }})
+      // .then((res: AxiosResponse) => {
+      //   console.log(res.data)
+      // })
     },
   });
 
-  const updateEdu = (field: string, index: number, value: string) => {
-    let update = education.map((item: EducationType, idx: number) => {
-      if (idx == index) {
-        item[field] = value;
-      }
-      return item;
-    });
-    setEducation(update);
-  };
 
   const steps: Step[] = [
     {
@@ -141,21 +119,14 @@ const Client = (props) => {
     });
   };
 
-  const addEducation = () => {
-    let update = {
-      school: "",
-      address: "",
-      from: "",
-      to: "",
-      cert: "",
-    };
-    setEducation([...education, update]);
-  };
 
-  const removeEducation = (index: number) => {
-    let update = education.filter((item: EducationType) => education.indexOf(item) != index)
-    setEducation(update);
-  };
+  useEffect(() => {
+    console.log(params.id)
+    const index = localStorage.getItem("onboarding")
+    if(index) {
+      switchIndex(parseInt(index))
+    }
+  },[])
 
   const switchIndex = (idx: number) => {
     setIndex(idx);
@@ -168,8 +139,7 @@ const Client = (props) => {
           <Personal
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={handleFieldSet}
+            id={params.id}
           />
         );
       case 2:
@@ -177,8 +147,7 @@ const Client = (props) => {
           <Parents
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={handleFieldSet}
+            id={params.id}
           />
         );
       case 3:
@@ -186,11 +155,7 @@ const Client = (props) => {
           <Education
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={updateEdu}
-            addEdu={addEducation}
-            edu={education}
-            remove={removeEducation}
+            id={params.id}
           />
         );
       case 4:
@@ -198,8 +163,7 @@ const Client = (props) => {
           <Banking
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={handleFieldSet}
+            id={params.id}
           />
       );
       case 5:
@@ -207,8 +171,7 @@ const Client = (props) => {
           <Attachments
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={handleFieldSet}
+            id={params.id}
           />
       );
       default:
@@ -216,8 +179,7 @@ const Client = (props) => {
           <Personal
             currIndex={index}
             switchIndex={switchIndex}
-            formik={formik}
-            setField={handleFieldSet}
+            id={params.id}
           />
         );
     }

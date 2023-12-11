@@ -5,16 +5,15 @@ import { Button, TextareaAutosize, TextField, RadioGroup, Radio, FormControlLabe
 import Checkbox, { checkboxClasses } from "@mui/material/Checkbox";
 import { api } from "../../../helpers/connection";
 import { AxiosError, AxiosResponse } from "axios";
-import { AddQuestion } from "./addQuestion";
-import { Question, Subject } from "./types";
-import { Questions } from "./questions";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { title } from "process";
 import { ComponentContext } from "../../../context/component.context";
 import { NotifierContext } from "../../../context/notifier.context";
+import { Question, Subject } from "../admin/types";
+import { useRouter } from "next/navigation";
 
 
-export const SetExam = () => {
+export const ExamSubjects = () => {
   const { state, dispatch } = useContext(ComponentContext);
   const { notifierState, notifierDispatch } = useContext(NotifierContext);
   const [subjects, setSubjects] = useState<Subject[]>()
@@ -22,8 +21,8 @@ export const SetExam = () => {
   const [creating, setCreating] = useState<boolean>(false)
   const [selSubject, setSelSubject] = useState<Subject>()
   const [view, setView] = useState<boolean>(false)
+  const router = useRouter()
   
-
   const getSubjects = () => {
     const body = {
       scope
@@ -84,13 +83,10 @@ export const SetExam = () => {
         <div className="flex gap-10 p-4">
         <div className="flex flex-col">
           <p>{item.name}</p>
-          <p className="text-[11px] text-gray-300">{`You have set ${item.questions} out of 20 questions`}</p>
+          {/* <p className="text-[11px] text-gray-300">{`You have set ${item.questions} out of 20 questions`}</p> */}
         </div>
-        <button onClick={() => handleView(item)} className="text-[#107F07] text-[14px]">
-          Questions
-        </button>
-        <button onClick={() => handleCreate(item)} className="text-[#107F07] text-[14px]">
-          Continue
+        <button onClick={() => router.push(`exam/${item.id}/1000`)} className="text-[#107F07] text-[14px]">
+          Take Exam
         </button>
         </div>
         <Divider className="h-[2px] bg-gray-200" />
@@ -105,28 +101,17 @@ export const SetExam = () => {
 
   return (
     <div className="text-black p-4 mt-[20px] min-h-screen">
-      {creating ?
-       <AddQuestion subject={selSubject} close={() => setCreating(false)} />
-      :
-      view ? 
-        <Questions subject={selSubject} close={() => setView(false)} edit={editQuestion} />
-      :
       <div>
-        <div>
-        <p className="text-[28px] font-medium">Set Exam</p>
+      <div>
+        <p className="text-[28px] font-medium">Select your subject</p>
       </div>
-      <RadioGroup className="flex flex-row" value={scope} onChange={handleScopeChange}>
-        <FormControlLabel value="JUNIOR" control={<Radio />} defaultChecked label="Junior secondary examination" />
-        <FormControlLabel value="SENIOR" control={<Radio />} label="Senior secondary examination" />
-      </RadioGroup>
-
       <div className="mt-[40px] flex flex-row gap-4">
         {renderSubjects()}
       </div>
       <div className="flex flex-col mt-[20px]">
         {renderSubjectDetails()}
       </div>
-      </div>}
+      </div>
     </div>
   );
 };

@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CustomInput } from "../components/customInput";
 import { useFormik } from "formik";
 import { Button, TextareaAutosize, TextField, Table, TableBody, TableHead, TableContainer, TableRow, TableCell, TablePagination } from "@mui/material";
 import Checkbox, { checkboxClasses } from "@mui/material/Checkbox";
+import { Student } from "./types";
 
-export const ApplicantTable = () => {
+interface TableProps {
+  students: Student[]
+  sort: string
+}
+
+export const ApplicantTable = ({students, sort}: TableProps) => {
 
     const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -38,36 +44,56 @@ export const ApplicantTable = () => {
         // onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
       };
 
+      const sortStudents = () => {
+        if(sort == "name") {
+          return students.sort((a, b) => a.lastName.localeCompare(b.lastName))
+        } else if(sort == "branch") {
+          return students.sort((a, b) => a.branch.localeCompare(b.branch))
+        } else {
+          return students
+        }
+      }
+
+      const renderStudents = () => {
+        return sortStudents()?.map((item: Student, idx: number) => (
+          <TableRow key={idx} className="w-[100%]">
+                    <TableCell className="w-[100px] p-2">{item.sn}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.clientId}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.firstName}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.lastName}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.bUnion}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.branch}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.clientId}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.productType}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.zone}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item?.email}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.phone}</TableCell>
+                    <TableCell className="w-[100px] p-2">{item.id}</TableCell>
+            </TableRow>
+        ))
+      }
+
     return (
-        <div>
+        <div className="text-[16px]">
             <TableContainer className="w-[100%]">
                 <TableHead className="bg-gray-200">
                     <TableRow className="w-[100%]">
-                    <TableCell className="w-[100px] text-[11px] p-2">other</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">ClientId</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Names</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">School</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Tier</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Branch</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Zone</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">MPK account</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Gender</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Phone number</TableCell>
+                    <TableCell className="w-[100px] p-2">sn</TableCell>
+                    <TableCell className="w-[100px] p-2">ClientId</TableCell>
+                    <TableCell className="w-[100px] p-2">First name</TableCell>
+                    <TableCell className="w-[100px] p-2">Last name</TableCell>
+                    <TableCell className="w-[100px] p-2">Union</TableCell>
+                    <TableCell className="w-[100px] p-2">Branch</TableCell>
+                    <TableCell className="w-[100px] p-2">Client Id</TableCell>
+                    <TableCell className="w-[100px] p-2">Product type</TableCell>
+                    <TableCell className="w-[100px] p-2">Zone</TableCell>
+                    <TableCell className="w-[100px] p-2">email</TableCell>
+                    <TableCell className="w-[100px] p-2">Phone number</TableCell>
+                    <TableCell className="w-[100px] p-2">Id</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                <TableRow className="w-[100%]">
-                    <TableCell className="w-[100px] text-[11px] p-2">other</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">ClientId</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Names</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">School</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Tier</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Branch</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Zone</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">MPK account</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Gender</TableCell>
-                    <TableCell className="w-[100px] text-[11px] p-2">Phone number</TableCell>
-                    </TableRow>
+                  {renderStudents()}
                 </TableBody>
             </TableContainer>
             <TablePagination

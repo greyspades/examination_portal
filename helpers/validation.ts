@@ -49,3 +49,27 @@ export const ValidateQuestion = Yup.object().shape({
   ),
   
 })
+
+export const RegistrationValidation = Yup.object().shape({
+  email: Yup.string()
+    .email('The email is invalid')
+    .required('This field is required'),
+  password: Yup.string()
+    .min(8, 'The password is too short')
+    .max(50, 'The password is too long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/, 'must contain at least one uppercase, one number, and one special character')
+    .required('This field is required'),
+  validPassword: Yup.string().required('this field is required')
+  .oneOf([Yup.ref('password')], 'Your passwords do not match.'),
+})
+
+export const LoginValidation = Yup.object().shape({
+  email: Yup.string()
+    .email('The email is invalid')
+    .required('This field is required'),
+  password: Yup.string()
+    .min(8, 'The password is too short')
+    .max(50, 'The password is too long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/, 'must contain at least one uppercase, one number, and one special character')
+    .required('This field is required')
+})

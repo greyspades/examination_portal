@@ -21,14 +21,18 @@ export const SideBar = () => {
         },
         {
             index: "3.0",
-            title: "Applicants"
+            title: "Clents"
         },
         {
             index: "4.0",
-            title: "Upload Applicants"
+            title: "Upload Clents"
         },
         {
             index: "5.0",
+            title: "Applicants"
+        },
+        {
+            index: "6.0",
             title: "Question bank"
         },
         // {

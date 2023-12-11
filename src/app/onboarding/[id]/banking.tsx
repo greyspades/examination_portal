@@ -1,19 +1,20 @@
 "use client";
 import React, { useState, useContext } from "react";
-import { CustomInput } from "../components/customInput";
-import { FormikProps, useFormik } from "formik";
-import { Button, TextareaAutosize, TextField } from "@mui/material";
-import { ComponentContext } from "../../../context/component.context";
-import { NotifierContext } from "../../../context/notifier.context";
+import { CustomInput } from "../../components/customInput";
+import { useFormik } from "formik";
+import { Button, CircularProgress, TextareaAutosize, TextField } from "@mui/material";
+import { ComponentContext } from "../../../../context/component.context";
+import { NotifierContext } from "../../../../context/notifier.context";
 import { useRouter } from "next/navigation";
+import { api } from "../../../../helpers/connection";
+import { AxiosResponse, AxiosError } from "axios";
 
 type Step = { title: string; index: number };
 
 interface OnboardingProps {
-  formik: FormikProps<any>;
   switchIndex: (idx: number) => void;
   currIndex: number;
-  setField: (field: string, value: any) => void
+  id: string
 }
 
 type Field = {
@@ -24,20 +25,47 @@ type Field = {
 }
 
 export const Banking = ({
-  formik,
   switchIndex,
   currIndex,
-  setField
+  id
 }: OnboardingProps) => {
   const { state, dispatch } = useContext(ComponentContext);
   const { notifierState, notifierDispatch } = useContext(NotifierContext);
   const [index, setIndex] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const formik = useFormik({
+    initialValues: {
+      mpkAccNo: state?.user?.mpkAccNo ?? "",
+      branch: state?.user?.branch ?? "",
+      accountName: state?.user?.accountName ?? "",
+      area: state?.user?.area ?? "",
+      union: state?.user?.union ?? "",
+      branchManager: state?.user?.branchManager ?? "",
+    },
+    onSubmit:((values) => {
+      setLoading(true)
+      const body = {...values, action: "banking", id}
+      api.post("onboard", body)
+      .then((res: AxiosResponse) => {
+        setLoading(false)
+        if(res.data.code == 200) {
+          console.log(res.data)
+          localStorage.setItem("onboarding", "5")
+          switchIndex(++currIndex)
+        }
+      })
+      .catch((err: AxiosError) => {
+        setLoading(false)
+        console.log(err.message)
+      })
+    })
+  })
 
   const fields: Field[] = [
     {
         title: "MPK Account No. *",
-        value: "accountNo",
+        value: "mpkAccNo",
         type: "text"
     },
     {
@@ -52,7 +80,7 @@ export const Banking = ({
     },
     {
         title: "Branch Manager*",
-        value: "manager",
+        value: "branchManager",
         type: "text"
     },
     {
@@ -66,6 +94,17 @@ export const Banking = ({
         type: "text"
     },
   ];
+
+  const setField = (field: string, value: string) => {
+    if(field == "numberOfWives" || field == "numberOfChildren") {
+      value = value.replace(/[^0-9]/g, '')
+    }
+    formik.setFieldValue(field, value);
+    dispatch({
+      type: "SET_FIELD_VALUE",
+      payload: { title: field, meta: value },
+    });
+  };
 
   const renderFields = () => {
     return fields.map((item: Field, idx: number) => (
@@ -91,8 +130,8 @@ export const Banking = ({
         <Button onClick={() => switchIndex(--currIndex)} className="bg-[#267F29] text-white rounded-lg w-[100px] h-[40px]">
             Prev
         </Button>
-        <Button onClick={() => switchIndex(++currIndex)} className="bg-[#267F29] text-white rounded-lg w-[150px] h-[40px]">
-            Next
+        <Button onClick={() => formik.handleSubmit()} className="bg-[#267F29] text-white rounded-lg w-[150px] h-[40px]">
+        {loading ? <CircularProgress thickness={6} className="text-white w-[50px] h-[50px]" /> : <p>Next</p>}
         </Button>
     </div>
     </div>

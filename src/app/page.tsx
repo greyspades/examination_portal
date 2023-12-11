@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { SetExam } from "./admin/setExam";
 import { NotifierContext } from "../../context/notifier.context";
 import { ComponentContext } from "../../context/component.context";
-import { EducationType } from "./onboarding/types";
 
 
 export default function Home() {
